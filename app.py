@@ -100,7 +100,7 @@ def get_ai_content_analysis(movie_title: str, overview: str, model_choice: str):
     For the movie "{movie_title}", please analyze the following content:
     Movie overview: {overview}
     
-    Please analyze the file for scenes containing any sexual content including kissing, nudity, and sexual acts or effection.
+    Please analyze the film for scenes containing any sexual content including kissing, nudity, and sexual acts or effection.
     
     If you find a scene containing at least one of the above elements, provide a complete detail of the scene:
     
