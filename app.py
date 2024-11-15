@@ -8,8 +8,8 @@ from enum import Enum
 
 # Define AI models
 class AIModel(Enum):
-    GROK = "X.AI (Grok)"
     GPT4 = "ChatGPT (GPT-4)"
+    GROK = "X.AI (Grok)"
 
 # Load environment variables
 load_dotenv()
