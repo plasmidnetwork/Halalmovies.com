@@ -138,6 +138,20 @@ st.markdown("""
     <p style='text-align: center;'>Detailed movie content analysis for informed viewing decisions</p>
     """, unsafe_allow_html=True)
 
+# Add disclaimer box
+st.warning("""
+    ⚠️ **IMPORTANT PARENTAL DISCLAIMER**
+    
+    Please be aware that:
+    - This app is still in development and may contain inaccuracies
+    - AI analysis may sometimes "hallucinate" or generate incorrect information
+    - The content analysis should not be considered as a definitive guide
+    - Parents should independently verify movie content before making viewing decisions
+    - Always use trusted parental guidance resources alongside this tool
+    
+    Your discretion and additional research are strongly recommended.
+""")
+
 # Add this function before your text_input
 def handle_enter():
     if st.session_state.movie_input:
