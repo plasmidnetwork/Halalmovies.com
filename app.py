@@ -8,8 +8,8 @@ from enum import Enum
 
 # Define AI models
 class AIModel(Enum):
-    GPT4 = "ChatGPT (GPT-4)"
     GROK = "X.AI (Grok)"
+    GPT4 = "ChatGPT (GPT-4)"
 
 # Load environment variables
 load_dotenv()
@@ -205,7 +205,8 @@ model_choice = st.radio(
     "Choose AI Model:",
     [model.value for model in AIModel],
     horizontal=True,
-    key="model_choice"
+    key="model_choice",
+    index=0
 )
 
 if st.button("Analyze 🔍", type="primary", use_container_width=True) or st.session_state.get('analyze', False):
