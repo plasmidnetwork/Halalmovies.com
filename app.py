@@ -138,13 +138,23 @@ st.markdown("""
     <p style='text-align: center;'>Detailed movie content analysis for informed viewing decisions</p>
     """, unsafe_allow_html=True)
 
+# Add this function before your text_input
+def handle_enter():
+    if st.session_state.movie_input:
+        st.session_state.analyze = True
+
+# Replace your current text_input and button with this:
 movie_name = st.text_input(
     "Enter movie title",
     placeholder="Example: The Lion King",
-    key="movie_input"
+    key="movie_input",
+    on_change=handle_enter
 )
 
-if st.button("Analyze 🔍", type="primary", use_container_width=True):
+if st.button("Analyze 🔍", type="primary", use_container_width=True) or st.session_state.get('analyze', False):
+    # Reset the analyze flag
+    st.session_state.analyze = False
+    
     if movie_name:
         with st.spinner("Analyzing..."):
             results = search_movie(movie_name)
@@ -190,13 +200,28 @@ if st.button("Analyze 🔍", type="primary", use_container_width=True):
                     else:
                         st.error("Unable to generate detailed analysis. Please try again.")
                 
-                st.subheader("📋 Final Recommendation")
-                if "Yes" in warnings.values():
-                    st.warning("⚠️ This movie contains content that may require careful consideration. Please review the detailed analysis above.")
-                else:
-                    st.success("✅ Initial analysis suggests minimal content concerns, but please review the detailed analysis above.")
-                
+                # Remove the Final Recommendation section and go straight to the footer
                 st.caption("Note: This analysis is automated and should be used as a guide only. Always verify with trusted sources.")
+                
+                # Add some spacing
+                st.markdown("<br><br>", unsafe_allow_html=True)
+                st.markdown("---")  # Horizontal line
+
+                # Create footer columns with better proportions
+                col1, col2 = st.columns([4, 1])
+
+                with col1:
+                    st.markdown("""
+                        <div style='font-size: 0.8em; color: #666666; padding-top: 20px;'>
+                        This product uses the TMDB API but is not endorsed or certified by TMDB.
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                with col2:
+                    try:
+                        st.image("assets/tmdb_logo.svg", width=80)
+                    except Exception as e:
+                        st.error(f"Could not load TMDB logo: {str(e)}")
                 
             else:
                 st.error("Movie not found. Please check the spelling and try again.")
