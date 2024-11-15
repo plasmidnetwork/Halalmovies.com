@@ -131,10 +131,18 @@ st.set_page_config(
     initial_sidebar_state="auto"
 )
 
-st.markdown("""
-    <h1 style='text-align: center; color: #2E7D32;'>Halal Movies 🎬</h1>
-    """, unsafe_allow_html=True)
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    try:
+        st.image("assets/halalmovies.png", use_container_width=True)
+    except Exception as e:
+        # Fallback to text header if image fails to load
+        st.markdown("""
+            <h1 style='text-align: center; color: #2E7D32;'>Halal Movies 🎬</h1>
+            """, unsafe_allow_html=True)
+        st.error(f"Could not load logo: {str(e)}")
 
+# Keep the subtitle
 st.markdown("""
     <p style='text-align: center;'>Detailed movie content analysis for informed viewing decisions</p>
     """, unsafe_allow_html=True)
