@@ -3,15 +3,27 @@ import requests
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
+from typing import Literal
+from enum import Enum
+
+# Define AI models
+class AIModel(Enum):
+    GPT4 = "ChatGPT (GPT-4)"
+    GROK = "X.AI (Grok)"
 
 # Load environment variables
 load_dotenv()
 TMDB_API_KEY = os.getenv('TMDB_API_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+XAI_API_KEY = os.getenv('XAI_API_KEY')
 BASE_URL = "https://api.themoviedb.org/3"
 
-# Initialize the client
-client = OpenAI(api_key=OPENAI_API_KEY)
+# Initialize both clients
+openai_client = OpenAI(api_key=OPENAI_API_KEY)
+xai_client = OpenAI(
+    api_key=XAI_API_KEY,
+    base_url="https://api.x.ai/v1",
+)
 
 def search_movie(query):
     url = f"{BASE_URL}/search/movie"
@@ -76,51 +88,62 @@ def analyze_content(keywords_data, ratings_data):
     
     return warnings, rating, rating_description, keywords
 
-def get_ai_content_analysis(movie_title, overview):
-    if not OPENAI_API_KEY:
+def get_ai_content_analysis(movie_title: str, overview: str, model_choice: str):
+    if model_choice == AIModel.GPT4.value and not OPENAI_API_KEY:
         st.error("OpenAI API key not found in environment variables")
+        return None
+    elif model_choice == AIModel.GROK.value and not XAI_API_KEY:
+        st.error("X.AI API key not found in environment variables")
         return None
     
     prompt = f"""
-For the movie "{movie_title}", please analyze the following content:
-Movie overview: {overview}
-
-Please analyze the file for scenes containing any sexual content including kissing, nudity, and sexual acts or effection.
-
-If you find a scene containing at least one of the above elements, provide a complete detail of the scene:
-
-Scene [number]:
-- 📝 **Description**: [Provide a description of the scene]
-- 👥 **Characters**: [Names of characters involved]
-- ℹ️ **Implies Intimacy or Sexual Act**: [If the scene includes sexual effection then simply answer Yes / Otherwise just answer Unknown]
-- 🔞 **Nudity**: Male / Female / Both
-- 💋 **Kissing**: Yes / No
-- 👁 **Buttocks**: Yes / No
-- 👁 **Breasts or Nipples**: Yes / No
-- 👁 **Vagina**: Yes / No
-- 👁 **Penis**: Yes / No
-- 🔊 **Moaning**: Yes / if No, then Unknown
-"""
+    For the movie "{movie_title}", please analyze the following content:
+    Movie overview: {overview}
+    
+    Please analyze the file for scenes containing any sexual content including kissing, nudity, and sexual acts or effection.
+    
+    If you find a scene containing at least one of the above elements, provide a complete detail of the scene:
+    
+    Scene [number]:
+    - 📝 **Description**: [Provide a description of the scene]
+    - 👥 **Characters**: [Names of characters involved]
+    - ℹ️ **Implies Intimacy or Sexual Act**: [If the scene includes sexual effection then simply answer Yes / Otherwise just answer Unknown]
+    - 🔞 **Nudity**: Male / Female / Both
+    - 💋 **Kissing**: Yes / No
+    - 👁 **Buttocks**: Yes / No
+    - 👁 **Breasts or Nipples**: Yes / No
+    - 👁 **Vagina**: Yes / No
+    - 👁 **Penis**: Yes / No
+    - 🔊 **Moaning**: Yes / if No, then Unknown
+    """
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You are a movie scenes analyzer providing thorough and insightful scene analysis. Be specific and detailed, no opinions, just observations where relevant to enhance understanding. Highlight any content that make parents watching with children uncomfortable."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.1,
-            max_tokens=1000
-        )
-        
-        if response.choices:
-            return response.choices[0].message.content
-        else:
-            st.error("No response generated")
-            return None
+        if model_choice == AIModel.GPT4.value:
+            response = openai_client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are a movie scenes analyzer providing thorough and insightful scene analysis. Be specific and detailed, no opinions, just observations where relevant to enhance understanding. Highlight any content that make parents watching with children uncomfortable."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.1,
+                max_tokens=1000
+            )
+            return {"type": "analysis", "content": response.choices[0].message.content}
+            
+        elif model_choice == AIModel.GROK.value:
+            response = xai_client.chat.completions.create(
+                model="grok-beta",
+                messages=[
+                    {"role": "system", "content": "You are a movie scenes analyzer providing thorough and insightful scene analysis. Be specific and detailed, no opinions, just observations where relevant to enhance understanding. Highlight any content that make parents watching with children uncomfortable."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.1,
+                max_tokens=1000
+            )
+            return {"type": "analysis", "content": response.choices[0].message.content}
             
     except Exception as e:
-        st.error(f"Error calling OpenAI API: {str(e)}")
+        st.error(f"Error calling AI API: {str(e)}")
         return None
 
 # Page configuration
@@ -174,6 +197,17 @@ movie_name = st.text_input(
     on_change=handle_enter
 )
 
+# Add near the top of your file, after imports
+from typing import Literal
+
+# Add before the movie input
+model_choice = st.radio(
+    "Choose AI Model:",
+    [model.value for model in AIModel],
+    horizontal=True,
+    key="model_choice"
+)
+
 if st.button("Analyze 🔍", type="primary", use_container_width=True) or st.session_state.get('analyze', False):
     # Reset the analyze flag
     st.session_state.analyze = False
@@ -214,12 +248,16 @@ if st.button("Analyze 🔍", type="primary", use_container_width=True) or st.ses
                 with st.spinner("Generating detailed scene analysis..."):
                     ai_analysis = get_ai_content_analysis(
                         movie["title"],
-                        movie.get("overview", "")
+                        movie.get("overview", ""),
+                        model_choice
                     )
                     
                     if ai_analysis:
-                        with st.expander("📝 Scene-by-Scene Content Analysis", expanded=True):
-                            st.markdown(ai_analysis)
+                        if ai_analysis["type"] == "analysis":
+                            with st.expander("📝 Scene-by-Scene Content Analysis", expanded=True):
+                                st.markdown(ai_analysis["content"])
+                        else:  # info message
+                            st.info(ai_analysis["content"])
                     else:
                         st.error("Unable to generate detailed analysis. Please try again.")
                 
