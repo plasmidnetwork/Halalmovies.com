@@ -125,9 +125,10 @@ Scene [number]:
 
 # Page configuration
 st.set_page_config(
-    page_title="Halal Movies",
+    page_title="HalalMovies.com",
     page_icon="🎬",
-    layout="centered"
+    layout="centered",
+    initial_sidebar_state="auto"
 )
 
 st.markdown("""
