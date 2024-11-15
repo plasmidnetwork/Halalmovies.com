@@ -2,6 +2,17 @@
 
 A content analysis tool that helps users make informed decisions about movie content from an Islamic perspective.
 
+  ⚠️ **IMPORTANT PARENTAL DISCLAIMER**
+    
+    Please be aware that:
+    - This app is still in development and may contain inaccuracies
+    - AI analysis may sometimes "hallucinate" or generate incorrect information
+    - The content analysis should not be considered as a definitive guide
+    - Parents should independently verify movie content before making viewing decisions
+    - Always use trusted parental guidance resources alongside this tool
+    
+    Your discretion and additional research are strongly recommended.
+
 ## Description
 Halal Movies is a Streamlit-based web application that provides detailed scene-by-scene analysis of movies, focusing on content that may be concerning from an Islamic viewpoint. The app combines data from TMDB (The Movie Database) with AI-powered content analysis to provide comprehensive insights about movie content.
 
