@@ -63,7 +63,6 @@ Halal Movies is a Streamlit-based web application that provides detailed scene-b
 1. Enter a movie title in the search box
 2. Click "Analyze" to get detailed content analysis
 3. Review the comprehensive scene-by-scene breakdown
-4. Check the final recommendation for viewing suitability
 
 ## Note
 This tool is meant to be used as a guide only. Always verify content with trusted sources and use personal judgment when making viewing decisions.
