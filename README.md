@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/75ed3bdf-476d-4257-a676-26ccae251053" width="500" alt="Tip Me">
+  <img src="https://github.com/user-attachments/assets/75ed3bdf-476d-4257-a676-26ccae251053" width="400" alt="Tip Me">
 </div>
 <br>
 A content analysis tool that helps users make informed decisions about movie content from an Islamic perspective.
